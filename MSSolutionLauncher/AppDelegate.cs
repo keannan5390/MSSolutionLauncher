@@ -8,7 +8,6 @@ namespace SolutionLauncher
     {
         public AppDelegate()
         {
-            Preferences.Load();
         }
 
         string slnFile = null;

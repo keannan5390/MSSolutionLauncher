@@ -73,7 +73,6 @@
     </Compile>
     <Compile Include="SlnOpenWith.cs" />
     <Compile Include="LauncherUtil.cs" />
-    <Compile Include="Preferences.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
@@ -82,7 +81,7 @@
     <BundleResource Include="..\Art\Icon.icns">
       <Link>Icon.icns</Link>
     </BundleResource>
-    <BundleResource Include="Preferences.json" />
+    <BundleResource Include="Resources\Preferences.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

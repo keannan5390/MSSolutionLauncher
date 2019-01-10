@@ -10,13 +10,6 @@ namespace SolutionLauncher
     {
         static readonly Dictionary<SlnOpenWith, List<string>> APP_IDS = new Dictionary<SlnOpenWith, List<string>> {
             {
-                SlnOpenWith.XamarinStudio, 
-                new List<string> {
-                    "com.xamarin.xamarinstudio",
-                    "com.xamarin.monodevelop"
-                }
-            },
-            {
                 SlnOpenWith.VisualStudio,
                 new List<string> {
                     "com.microsoft.visual-studio"
@@ -44,43 +37,10 @@ namespace SolutionLauncher
                 return visualStudioBundleId;
             }
         }
-        static string xamarinStudioBundleId = null;
-        static string XamarinStudioBundleId
-        {
-            get
-            {
-                if (xamarinStudioBundleId == null)
-                    xamarinStudioBundleId = FirstBundleIdThatExists(APP_IDS[SlnOpenWith.XamarinStudio].ToArray());
-                return xamarinStudioBundleId;
-            }
-        }
 
         public static void Launch (string slnFile)
         {
-            string appId = string.Empty;
-
-            var openWith = Preferences.Instance.OpenWith;
-
-            // If we are supposed to ask AND 
-            if (openWith == SlnOpenWith.Ask)
-            {
-                // Even if we're supposed to ask, make sure more than one choice exists to use, otherwise
-                // it's pointless to ask which to pick
-                if (!string.IsNullOrEmpty(VisualStudioBundleId) && !string.IsNullOrEmpty(XamarinStudioBundleId))
-                {
-                    var askOpenWith = ChooseIde(slnFile);
-                    if (askOpenWith.HasValue)
-                        openWith = askOpenWith.Value;
-                    else
-                        return;
-                }
-            }
-
-            // Decide which bundle id to use
-            if (openWith == SlnOpenWith.VisualStudio)
-                appId = VisualStudioBundleId;
-            else if (openWith == SlnOpenWith.XamarinStudio)
-                appId = XamarinStudioBundleId;
+            string appId = appId = VisualStudioBundleId;
 
 
 			// If we didn't find a bundle ID from our choice or preferences
@@ -89,15 +49,11 @@ namespace SolutionLauncher
 				// First let's look for VS4Mac
 				appId = VisualStudioBundleId;
 
-				// If VS4Mac doesn't exist, try falling back explicitly to XS
-				if (string.IsNullOrEmpty(appId))
-					appId = XamarinStudioBundleId;
-
 				// If neither exist, we have no IDE installed so don't bother trying
 				// to launch anything, just return.
 				if (string.IsNullOrEmpty(appId))
 				{
-					Alert("No IDE Found", "Neither Visual Studio for Mac or Xamarin Studio could be found.  Please make sure at least one of them is installed in your Applications folder");
+					Alert("No IDE Found", "Visual Studio for Mac could be found.  Please make sure it is installed in your Applications folder");
 					return;
 				}
 			}
@@ -199,41 +155,6 @@ namespace SolutionLauncher
                 Console.WriteLine(task + " failed: " + ex);
             }
             return r;
-        }
-
-        public static SlnOpenWith? ChooseIde (string openSlnFile)
-        {
-            var alert = new NSAlert();
-            alert.InformativeText = "MS Solution Launcher allows you to easily open multiple instances of Xamarin Studio or Visual Studio for Mac";
-
-            alert.AddButton("Visual Studio for Mac");
-            alert.AddButton("Xamarin Studio");
-            alert.AddButton("Cancel");
-
-            if (!string.IsNullOrEmpty(openSlnFile))
-            {
-                alert.MessageText = "Which application would you like to open this solution with?";
-                alert.InformativeText = openSlnFile;
-            }
-            else
-            {
-                alert.MessageText = "Which application would you like to open?";
-                alert.InformativeText = "A new instance of the application you choose will be opened.";
-            }
-
-            var which = alert.RunModal();
-
-            var buttonIndex = which - (int)NSAlertButtonReturn.First;
-
-            switch (buttonIndex)
-            {
-                case 0:
-                    return SlnOpenWith.VisualStudio;
-                case 1:
-                    return SlnOpenWith.XamarinStudio;
-            }
-
-            return null;
         }
 
 		public static void Alert(string title, string message)
